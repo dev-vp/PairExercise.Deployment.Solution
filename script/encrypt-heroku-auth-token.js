@@ -1,11 +1,21 @@
 #!/usr/bin/env node
+//. BIN files are the compressed binary files that are used for varied purposes by many computer applications.
 
+// The child_process.spawn() method spawns a new process using the given 'command', with command-line arguments in args. If omitted, args defaults to an empty array.
 const { spawn } = require("child_process");
+
+// The 'fs' module is included with Node.js and stands for 'file-system'; which allows us to access physical file systems.
 const fs = require("fs");
 
 const axios = require("axios");
+
+//A high level git url parser for common git providers.
 const GitUrlParse = require("git-url-parse");
+
+// A lightweight interface for running git commands in any node.js application.
 const simpleGit = require("simple-git")();
+
+// YAML is a human-readable data-serialization language. It is commonly used for configuration files and in applications where data is being stored or transmitted.
 const YAML = require("yaml");
 
 /* Specific message contents stored as constants */
@@ -23,6 +33,8 @@ const clean = () => {
   const externalFiles = [".tmp.key.pem", ".tmp.token.txt", ".tmp.token.enc"];
   externalFiles.forEach(file => {
     if (fs.existsSync(file)) fs.unlinkSync(file);
+    // The fs.existsSync() method is used to synchronously check if a file already exists in the given path or not. It returns a boolean value which indicates the presence of a file.
+    // The fs.unlinkSync() method is used to synchronously remove a file or symbolic link from the filesystem. This function does not work on directories, therefore it is recommended to use fs.rmdir() to remove a directory.
   });
 };
 
@@ -66,8 +78,10 @@ const getOutputFromCommand = async (command, args) => {
 /* Use git remote URLs to get app identifiers. */
 const getNamesFromGit = () =>
   new Promise((resolve, reject) =>
-    simpleGit.getRemotes(true, (err, res) => {
+  simpleGit.getRemotes(true, (err, res) => {
+      //.getRemotes([verbose]) gets a list of the named remotes, supply the optional verbose option as true to include the URLs and purpose of each ref.
       if (err) throw new Error(reject(err));
+      // else...
       resolve({
         fullName: GitUrlParse(getRemoteURL("origin", res)).full_name,
         appName: GitUrlParse(getRemoteURL("heroku", res)).name
@@ -91,6 +105,7 @@ const encryptHerokuToken = async () => {
 };
 
 /* Write the encrypted key, and other values, to the .travis.yml file. */
+// travis. yml , which is a YAML format text file, to the root directory of the repository. This file specifies the programming language used, the desired building and testing environment (including dependencies which must be installed before the software can be built and tested), and various other parameters.
 const updateTravisYAML = (app, key) => {
   const travis = fs.readFileSync(".travis.yml", "utf8");
   const doc = YAML.parseDocument(travis);
